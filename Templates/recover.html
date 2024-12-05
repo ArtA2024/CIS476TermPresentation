@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Recover Master Password</h2>
+<form method="POST">
+    <div>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+    </div>
+    <div>
+        <label for="answer1">Answer to Security Question 1:</label>
+        <input type="text" id="answer1" name="answer1" required>
+    </div>
+    <div>
+        <label for="answer2">Answer to Security Question 2:</label>
+        <input type="text" id="answer2" name="answer2" required>
+    </div>
+    <div>
+        <label for="answer3">Answer to Security Question 3:</label>
+        <input type="text" id="answer3" name="answer3" required>
+    </div>
+    <button type="submit">Recover Password</button>
+</form>
+{% endblock %}

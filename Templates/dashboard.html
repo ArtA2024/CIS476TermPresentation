@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Welcome to MyPass Dashboard</h2>
+
+<!-- Notifications Section -->
+<h3>Notifications</h3>
+<ul id="notifications-list">
+    {% for notification in notifications %}
+        <li>
+            {{ notification.message }}
+            <form method="POST" action="{{ url_for('mark_as_read', notification_id=notification.id) }}" style="display: inline;">
+                <button type="submit">Mark as Read</button>
+            </form>
+        </li>
+    {% else %}
+        <li>No new notifications</li>
+    {% endfor %}
+</ul>
+
+<!-- Vault Items Section -->
+<a href="{{ url_for('add_item') }}">Add New Item</a>
+<table>
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Type</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="vault-table-body">
+        {% for item in vault_items %}
+        <tr>
+            <td>{{ item.title }}</td>
+            <td>{{ item.item_type }}</td>
+            <td>
+                <form method="POST" action="{{ url_for('toggle_mask', item_id=item.id) }}" style="display: inline;">
+                    <button type="submit">{{ 'Unmask' if item.masked else 'Mask' }}</button>
+                </form>
+                <a href="{{ url_for('edit_item', item_id=item.id) }}">Edit</a>
+                <form method="POST" action="{{ url_for('delete_item', item_id=item.id) }}" style="display: inline;">
+                    <button type="submit">Delete</button>
+                </form>
+
+                {% if item.item_type == 'Login' %}
+                    <button onclick="copyToClipboard('{{ item.username }}')">Copy Username</button>
+                    <button onclick="copyToClipboard('{{ item.password }}')">Copy Password</button>
+                    <button onclick="copyToClipboard('{{ item.url }}')">Copy URL</button>
+                {% elif item.item_type == 'Credit Card' %}
+                    <button onclick="copyToClipboard('{{ item.credit_card_number }}')">Copy Credit Card</button>
+                    <button onclick="copyToClipboard('{{ item.cvv }}')">Copy CVV</button>
+                {% elif item.item_type == 'Identity' %}
+                    <button onclick="copyToClipboard('{{ item.full_name }}')">Copy Full Name</button>
+                    <button onclick="copyToClipboard('{{ item.address }}')">Copy Address</button>
+                    <button onclick="copyToClipboard('{{ item.phone_number }}')">Copy Phone Number</button>
+                    <button onclick="copyToClipboard('{{ item.passport_number }}')">Copy Passport Number</button>
+                    <button onclick="copyToClipboard('{{ item.driver_license }}')">Copy Driver's License</button>
+                    <button onclick="copyToClipboard('{{ item.ssn }}')">Copy SSN</button>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{{ url_for('logout') }}">Logout</a>
+
+<!-- Clipboard Copying Script -->
+<script>
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Copied to clipboard!');
+            setTimeout(() => {
+                navigator.clipboard.writeText(""); // Clear clipboard
+                alert('Clipboard cleared!');
+            }, 30000); // 30 seconds
+        }).catch(err => {
+            console.error('Could not copy text: ', err);
+        });
+    }
+</script>
+
+<script>
+    function refreshVaultView() {
+        fetch('/get_vault_items')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.querySelector('#vault-table-body');
+                tableBody.innerHTML = ''; // Clear the table body
+
+                // Populate the table with updated data
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.title}</td>
+                        <td>${item.item_type}</td>
+                        <td>
+                            <form method="POST" action="/toggle_mask/${item.id}" style="display: inline;">
+                                <button type="submit">${item.masked ? 'Unmask' : 'Mask'}</button>
+                            </form>
+                            <a href="/edit_item/${item.id}">Edit</a>
+                            <form method="POST" action="/delete_item/${item.id}" style="display: inline;">
+                                <button type="submit">Delete</button>
+                            </form>
+                            ${item.item_type === 'Login' ? `
+                                <button onclick="copyToClipboard('${item.username}')">Copy Username</button>
+                                <button onclick="copyToClipboard('${item.password}')">Copy Password</button>
+                                <button onclick="copyToClipboard('${item.url}')">Copy URL</button>
+                            ` : item.item_type === 'Credit Card' ? `
+                                <button onclick="copyToClipboard('${item.credit_card_number}')">Copy Credit Card</button>
+                                <button onclick="copyToClipboard('${item.cvv}')">Copy CVV</button>
+                            ` : item.item_type === 'Identity' ? `
+                                <button onclick="copyToClipboard('${item.full_name}')">Copy Full Name</button>
+                                <button onclick="copyToClipboard('${item.address}')">Copy Address</button>
+                                <button onclick="copyToClipboard('${item.phone_number}')">Copy Phone Number</button>
+                                <button onclick="copyToClipboard('${item.passport_number}')">Copy Passport Number</button>
+                                <button onclick="copyToClipboard('${item.driver_license}')">Copy Driver's License</button>
+                                <button onclick="copyToClipboard('${item.ssn}')">Copy SSN</button>
+                            ` : ''}
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(err => {
+                console.error('Failed to refresh vault view:', err);
+            });
+    }
+
+    function refreshNotifications() {
+        fetch('/get_notifications')
+            .then(response => response.json())
+            .then(data => {
+                const notificationsList = document.querySelector('#notifications-list');
+                notificationsList.innerHTML = ''; // Clear the notifications list
+
+                if (data.length > 0) {
+                    data.forEach(notification => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `
+                            ${notification.message}
+                            <form method="POST" action="/mark_as_read/${notification.id}" style="display: inline;">
+                                <button type="submit">Mark as Read</button>
+                            </form>
+                        `;
+                        notificationsList.appendChild(listItem);
+                    });
+                } else {
+                    notificationsList.innerHTML = '<li>No new notifications</li>';
+                }
+            })
+            .catch(err => {
+                console.error('Failed to refresh notifications:', err);
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        refreshVaultView();
+        refreshNotifications();
+    });
+</script>
+{% endblock %}

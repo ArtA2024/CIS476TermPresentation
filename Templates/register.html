@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Register</h2>
+
+<form method="POST">
+    {{ form.hidden_tag() }}
+
+    <div class="form-group">
+        <label for="email">Email:</label>
+        {{ form.email(class="form-control") }}
+        {% if form.email.errors %}
+            <div class="alert alert-danger">
+                {% for error in form.email.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="master_password">Master Password:</label>
+        {{ form.master_password(class="form-control") }}
+        <button type="button" id="generate_password" class="btn btn-secondary mt-2">Generate Password</button>
+        {% if form.master_password.errors %}
+            <div class="alert alert-danger">
+                {% for error in form.master_password.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="confirm_password">Confirm Password:</label>
+        {{ form.confirm_password(class="form-control") }}
+        {% if form.confirm_password.errors %}
+            <div class="alert alert-danger">
+                {% for error in form.confirm_password.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="security_q1">Security Question 1:</label>
+        {{ form.security_q1(class="form-control") }}
+        <label for="security_q1_answer">Answer:</label>
+        {{ form.security_q1_answer(class="form-control") }}
+        {% if form.security_q1_answer.errors %}
+            <div class="alert alert-danger">
+                {% for error in form.security_q1_answer.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="security_q2">Security Question 2:</label>
+        {{ form.security_q2(class="form-control") }}
+        <label for="security_q2_answer">Answer:</label>
+        {{ form.security_q2_answer(class="form-control") }}
+        {% if form.security_q2_answer.errors %}
+            <div class="alert alert-danger">
+                {% for error in form.security_q2_answer.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="security_q3">Security Question 3:</label>
+        {{ form.security_q3(class="form-control") }}
+        <label for="security_q3_answer">Answer:</label>
+        {{ form.security_q3_answer(class="form-control") }}
+        {% if form.security_q3_answer.errors %}
+            <div class="alert alert-danger">
+                {% for error in form.security_q3_answer.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Register</button>
+</form>
+
+<script>
+    document.getElementById('generate_password').addEventListener('click', async () => {
+        const response = await fetch('/generate_password?length=12');
+        const data = await response.json();
+        if (data.password) {
+            document.getElementById('master_password').value = data.password;
+            alert(`Generated Password: ${data.password}`);
+        } else {
+            alert(`Error: ${data.error}`);
+        }
+    });
+</script>
+{% endblock %}

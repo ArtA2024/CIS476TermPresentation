@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MyPass - {% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script>
+        let timeout;
+
+        // Set auto-lock timeout to 1 minute (60,000 ms) or customize as needed
+        const AUTO_LOCK_TIME = 60000;
+
+        // Function to reset the inactivity timer
+        function resetTimer() {
+            clearTimeout(timeout); // Clear any existing timer
+            timeout = setTimeout(() => {
+                // Redirect to the logout route after inactivity
+                window.location.href = "{{ url_for('logout') }}";
+            }, AUTO_LOCK_TIME);
+        }
+
+        // Event listeners for user activity
+        window.onload = resetTimer; // Reset timer on page load
+        document.onmousemove = resetTimer; // Reset timer on mouse movement
+        document.onkeypress = resetTimer; // Reset timer on key press
+        document.onscroll = resetTimer; // Reset timer on scroll
+        document.onclick = resetTimer; // Reset timer on click
+
+        console.log("Auto-lock after inactivity is active!");
+    </script>
+</head>
+<body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flashes">
+        {% for category, message in messages %}
+          <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Edit Vault Item</h2>
+<form method="POST">
+    <label for="title">Title:</label>
+    <input type="text" name="title" value="{{ item.title }}" required>
+
+    <!-- Login Fields -->
+    <div id="login-fields" {% if item.item_type != 'Login' %}style="display: none;"{% endif %}>
+        <label for="username">Username:</label>
+        <input type="text" name="username" value="{{ item.username }}">
+
+        <label for="password">Password:</label>
+        <input type="password" name="password" value="{{ item.password }}">
+
+        <label for="url">URL:</label>
+        <input type="text" name="url" value="{{ item.url }}">
+    </div>
+
+    <!-- Credit Card Fields -->
+    <div id="credit-card-fields" {% if item.item_type != 'Credit Card' %}style="display: none;"{% endif %}>
+        <label for="credit_card_number">Credit Card Number:</label>
+        <input type="text" name="credit_card_number" value="{{ item.credit_card_number }}">
+
+        <label for="cvv">CVV:</label>
+        <input type="text" name="cvv" value="{{ item.cvv }}">
+
+        <label for="credit_card_expiration">Expiration Date (MM/YYYY):</label>
+        <input type="text" name="credit_card_expiration" value="{{ item.credit_card_expiration }}">
+    </div>
+
+    <!-- Identity Fields -->
+    <div id="identity-fields" {% if item.item_type != 'Identity' %}style="display: none;"{% endif %}>
+        <label for="full_name">Full Name:</label>
+        <input type="text" name="full_name" value="{{ item.full_name }}">
+
+        <label for="address">Address:</label>
+        <input type="text" name="address" value="{{ item.address }}">
+
+        <label for="phone_number">Phone Number:</label>
+        <input type="text" name="phone_number" value="{{ item.phone_number }}">
+
+        <label for="passport_number">Passport Number:</label>
+        <input type="text" name="passport_number" value="{{ item.passport_number }}">
+
+        <label for="passport_expiration">Passport Expiration Date (MM/DD/YYYY):</label>
+        <input type="text" name="passport_expiration" value="{{ item.passport_expiration }}">
+
+        <label for="driver_license">Driver’s License:</label>
+        <input type="text" name="driver_license" value="{{ item.driver_license }}">
+
+        <label for="license_expiration">License Expiration Date (MM/DD/YYYY):</label>
+        <input type="text" name="license_expiration" value="{{ item.license_expiration }}">
+
+        <label for="ssn">Social Security Number (SSN):</label>
+        <input type="text" name="ssn" value="{{ item.ssn }}">
+    </div>
+
+    <!-- Secure Note Fields -->
+    <div id="secure-note-fields" {% if item.item_type != 'Secure Note' %}style="display: none;"{% endif %}>
+        <label for="secure_note">Secure Note:</label>
+        <textarea name="secure_note">{{ item.secure_note }}</textarea>
+    </div>
+
+    <button type="submit">Save Changes</button>
+</form>
+
+<script>
+    // Ensure fields display correctly based on item type
+    document.addEventListener('DOMContentLoaded', function () {
+        const itemType = "{{ item.item_type }}";
+        document.getElementById("login-fields").style.display = itemType === "Login" ? "block" : "none";
+        document.getElementById("credit-card-fields").style.display = itemType === "Credit Card" ? "block" : "none";
+        document.getElementById("identity-fields").style.display = itemType === "Identity" ? "block" : "none";
+        document.getElementById("secure-note-fields").style.display = itemType === "Secure Note" ? "block" : "none";
+    });
+</script>
+{% endblock %}
